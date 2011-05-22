@@ -5,7 +5,7 @@ import re
 import sys
 
 def read_file(infile, outfile):
-    text = open(infile, 'r').read()
+    text = infile.read()
 
     converter = Converter(output=outfile)
     for line in text.split('\n'):
@@ -44,11 +44,14 @@ class Converter(object):
 if __name__ == '__main__':
     args = sys.argv 
 
-    if len(args) != 2:
+    if len(args) != 3:
         print('Usage main.py input')
         sys.exit(1)
 
-    infile = args[1]
-    outfile = csv.writer(open('blah.csv', 'w'))
+    inpath = args[1]
+    outpath = args[2]
+
+    infile = open(inpath, 'r')
+    outfile = csv.writer(open(outpath, 'w'))
     read_file(infile, outfile)
     
