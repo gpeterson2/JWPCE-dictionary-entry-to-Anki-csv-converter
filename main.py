@@ -20,26 +20,54 @@ class Converter(object):
         self.error = error
 
     def convert(self, line):
-        if not line:
-            return
+        if not line.strip():
+            return False
 
-        pattern = r'(.*)\s*\xe3\x80\x90(.*)\xe3\x80\x91\s*(.*)'
-        regex = re.compile(pattern, re.U)
+        # Line includes kanji, kana, and reading
+        kanji_pattern = r'(.*)\s*\xe3\x80\x90(.*)\xe3\x80\x91\s*(.*)'
+        kanji_regex = re.compile(kanji_pattern, re.U)
+
+        # line includes only kana and reading
+        kana_pattern = r'^(.*)\t+(.*)$'
+        kana_regex = re.compile(kana_pattern, re.U)
 
         try:
-            match = regex.match(line).groups()
+            match = kanji_regex.match(line)
 
-            kanji = match[0].strip()
-            kana = match[1].strip()
-            reading = match[2].strip()
+            # Try to match kanji line
+            if match:
+                groups = match.groups()
 
-            front = kanji
-            back = '{0}<br>{1}'.format(kana, reading)
+                kanji = groups[0].strip()
+                kana = groups[1].strip()
+                reading = groups[2].strip()
 
-            self.output.writerow([front, back])
+                front = kanji
+                back = '{0}<br>{1}'.format(kana, reading)
+
+                self.output.writerow([front, back])
+
+                #print('kanji: ' + line)
+
+                return True
+
+            # Try to match kana only line
+            match = kana_regex.match(line)
+            if match:
+                groups = match.groups()
+
+                kana = groups[0].strip()
+                reading = groups[1].strip()
+
+                #print('kana: ' + line)
+
+                self.output.writerow([kana, reading])
+                return True
+
+            return False
 
         except AttributeError as e:
-            self.error.write('{0}\n'.format(line))
+            self.error.write('Error: {0}\n'.format(line))
 
 if __name__ == '__main__':
     args = sys.argv 
