@@ -1,73 +1,119 @@
 #! /usr/bin/env python
 
+''' Converts a file of JWPCE dictionary defenitions to an Anki CSV.
+
+    *Note* The file must start in utf-8 format, not the default JWPCE format.
+    At some point this may change, but for the moment I don't want to deal
+    with the various file encodings.
+'''
+
 import csv
 import re
 import sys
 
-def read_file(infile, outfile):
-    text = infile.read()
+class ConvertError(Exception):
+    ''' Error when line can't be converted '''
+    pass
 
-    converter = Converter(output=outfile)
-    for line in text.split('\n'):
-        converter.convert(line)
+def read_file(inpath):
+    ''' Given a filepath converts the lines in the file. 
 
-class Converter(object):
-    def __init__(self, output, error=None):
-        if not error:
-            error = sys.stderr
+        Will return a list of the conversions.
 
-        self.output = output
-        self.error = error
+        :param inpath: The path to a file to open.
+        :returns: A list of converted lines.
+    '''
 
-    def convert(self, line):
-        if not line.strip():
-            return False
+    contents = []
+    with open(inpath, 'r') as infile:
+        for line in infile.readlines():
+            if not line.strip():
+                continue
 
-        # Line includes kanji, kana, and reading
-        kanji_pattern = r'(.*)\s*\xe3\x80\x90(.*)\xe3\x80\x91\s*(.*)'
-        kanji_regex = re.compile(kanji_pattern, re.U)
+            converted = None
+            try:
+                converted = convert(line)
+            except ConvertError:
+                pass
 
-        # line includes only kana and reading
-        kana_pattern = r'^(.*)\t+(.*)$'
-        kana_regex = re.compile(kana_pattern, re.U)
+            if converted:
+                contents.append(converted)
 
-        try:
-            match = kanji_regex.match(line)
+    return contents
 
-            # Try to match kanji line
-            if match:
-                groups = match.groups()
+def write_file(outpath, contents):
+    ''' Writes converted lines to a csv. '''
 
-                kanji = groups[0].strip()
-                kana = groups[1].strip()
-                reading = groups[2].strip()
+    f = open(outpath, 'w')
+    writer = csv.writer(f)
 
-                front = kanji
-                back = '{0}<br>{1}'.format(kana, reading)
+    for front, back in contents:
+        writer.writerow([front, back])
 
-                self.output.writerow([front, back])
+    f.close()
 
-                #print('kanji: ' + line)
+def convert(line):
+    ''' Parses a JWPCE line into a front, and back flashcard format.
 
-                return True
+        Capable of being imported into Anki.
 
-            # Try to match kana only line
-            match = kana_regex.match(line)
-            if match:
-                groups = match.groups()
+        There are two types dictionary lines:
+        1. kanji [kana] defenition
+        2. kana defenition
 
-                kana = groups[0].strip()
-                reading = groups[1].strip()
+        This will determine which is it is and in case one return:
+        front: kanji, back: kana newline defenitions
 
-                #print('kana: ' + line)
+        in the case of a kana line it will return:
+        front: kana, back: defenitions    
 
-                self.output.writerow([kana, reading])
-                return True
+        Will throw a ConvertError if the line doesn't match.
 
-            return False
+        :param line: A JWPCE dictionary line.
+    '''
 
-        except AttributeError as e:
-            self.error.write('Error: {0}\n'.format(line))
+    front = ''
+    back = ''
+
+    # Line includes kanji, kana, and reading
+    kanji_pattern = r'(.*)\s*\xe3\x80\x90(.*)\xe3\x80\x91\s*(.*)'
+    kanji_regex = re.compile(kanji_pattern, re.U)
+
+    # line includes only kana and reading
+    kana_pattern = r'^(.*)\t+(.*)$'
+    kana_regex = re.compile(kana_pattern, re.U)
+
+    match = kanji_regex.match(line)
+
+    # TODO - the return from the kanji section smells bad. There should be a
+    # way to determine which line matches perform the logic, and have only
+    # a single return.
+    # Ideally there could be one regex to match both.
+
+    # Try to match kanji line
+    if match:
+        groups = match.groups()
+
+        kanji = groups[0].strip()
+        kana = groups[1].strip()
+        reading = groups[2].strip()
+
+        front = kanji
+        back = '{0}<br>{1}'.format(kana, reading)
+
+        return (front, back)
+
+    # Try to match kana only line
+    match = kana_regex.match(line)
+    if match:
+        groups = match.groups()
+
+        kana = groups[0].strip()
+        reading = groups[1].strip()
+
+        return (kana, reading)
+
+    raise ConvertError('Line not matched')
 
 if __name__ == '__main__':
     args = sys.argv 
@@ -79,7 +125,6 @@ if __name__ == '__main__':
     inpath = args[1]
     outpath = args[2]
 
-    infile = open(inpath, 'r')
-    outfile = csv.writer(open(outpath, 'w'))
-    read_file(infile, outfile)
-    
+    contents = read_file(inpath)
+    write_file(outpath, contents) 
+
