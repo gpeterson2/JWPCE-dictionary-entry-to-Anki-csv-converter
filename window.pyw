@@ -7,14 +7,14 @@ from PySide.QtCore import (Qt, SIGNAL)
 from PySide.QtGui import (QApplication, QDialog, QGridLayout, QLabel,
         QPushButton, QLineEdit, QFileDialog, QMessageBox)
 
-import convert
+from jwpce_convert import read_file, write_file
 
 class Form(QDialog):
 
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
 
-        # TODO - set a min width 
+        # TODO - set a min width
         self.setMinimumWidth(500)
 
         self.label = QLabel('Input file...')
@@ -72,8 +72,8 @@ class Form(QDialog):
             return
 
         # TODO - add in some kind of progress indicator?
-        contents = convert.read_file(input_path)
-        convert.write_file(output_path, contents)
+        contents = read_file(input_path)
+        write_file(output_path, contents)
 
         QMessageBox.information(self,
             self.tr('JWPCE conversion'),
@@ -81,7 +81,7 @@ class Form(QDialog):
             QMessageBox.Ok)
 
     def open_input_file_dialog(self):
-        ''' Opens and input file dialog and sets the output based on that. 
+        ''' Opens and input file dialog and sets the output based on that.
 
             The output file path will be the same as the input, but renamed
             .csv instead of .txt.
@@ -90,7 +90,7 @@ class Form(QDialog):
         dialog = QFileDialog(self)
         # While testing anyway
         dialog.setDirectory('.')
-        dialog.setFileMode(QFileDialog.ExistingFile) 
+        dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setNameFilter('Text files (*.txt)')
 
         if dialog.exec_():
@@ -113,3 +113,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

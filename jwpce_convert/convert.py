@@ -10,7 +10,7 @@ class ConvertError(Exception):
     pass
 
 def read_file(inpath):
-    ''' Given a filepath converts the lines in the file. 
+    ''' Given a filepath converts the lines in the file.
 
         Will return a list of the conversions.
 
@@ -60,7 +60,7 @@ def convert(line):
         front: kanji, back: kana newline defenitions
 
         in the case of a kana line it will return:
-        front: kana, back: defenitions    
+        front: kana, back: defenitions
 
         Will throw a ConvertError if the line doesn't match.
 

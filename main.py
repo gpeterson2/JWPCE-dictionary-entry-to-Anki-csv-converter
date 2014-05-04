@@ -10,10 +10,10 @@
 import os
 import sys
 
-from convert import read_file, write_file
+from jwpce_convert import read_file, write_file
 
 def main():
-    args = sys.argv 
+    args = sys.argv
 
     # TODO - use argparse module
     if len(args) != 3:
@@ -25,7 +25,7 @@ def main():
     input_path = args[1]
     if not (os.path.exists(input_path) or os.path.isfile(input_path)):
         print('Input file does not exist or is not a file.')
-    
+
     # TODO - if not provided, then base the outpufile file name on the input?
     output_path = args[2]
     # TODO if output exists, print message
@@ -36,7 +36,7 @@ def main():
         print('Failure: Input and output are the same.')
 
     contents = read_file(input_path)
-    write_file(output_path, contents) 
+    write_file(output_path, contents)
 
 if __name__ == '__main__':
     main()
