@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 
+''' Converts a file of JWPCE dictionary defenitions to an Anki CSV.
+
+    GUI version.
+'''
+
 import os
 import sys
 
@@ -46,6 +51,7 @@ class Form(QDialog):
         # TODO move the path validation to a separate class to share with the
         # console program?
 
+        # Make sure that the input path exists.
         input_path = self.input_path.text()
         if not (os.path.exists(input_path) or os.path.isfile(input_path)):
             QMessageBox.warning(self,
@@ -53,7 +59,20 @@ class Form(QDialog):
                 self.tr('The input file does not exist or if not a file'),
                 QMessageBox.Ok)
             return
+
         output_path = self.output_path.text()
+
+        # If not provided create the output file path.
+        if not output_path:
+            # Get name without extension
+            output_path = os.path.splitext(input_path)[0]
+
+        # Make sure it ends with csv.
+        if not output_path.endswith('.csv'):
+            output_path = output_path + '.csv'
+
+        # Check if the output file already exists.
+        # If so prompt to overwrite.
         if os.path.exists(output_path):
             overwrite = QMessageBox.warning(self,
                 self.tr('JWPCE conversion'),
@@ -77,7 +96,7 @@ class Form(QDialog):
 
         QMessageBox.information(self,
             self.tr('JWPCE conversion'),
-            self.tr('The conversion is complete'),
+            self.tr('The conversion is complete.'),
             QMessageBox.Ok)
 
     def open_input_file_dialog(self):
