@@ -32,6 +32,12 @@ Usage
 -----
     Python main.py infile.txt outfile.csv
 
+------------
+Requirements
+------------
+
+To use the GUI version you must have pyside installed.
+
 ----
 TODO
 ----
