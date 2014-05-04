@@ -5,6 +5,8 @@
     GUI version.
 '''
 
+# TODO - merge the console and gui version?
+
 import os
 import sys
 
@@ -13,6 +15,12 @@ from PySide.QtGui import (QApplication, QDialog, QGridLayout, QLabel,
         QPushButton, QLineEdit, QFileDialog, QMessageBox)
 
 from jwpce_convert import read_file, write_file
+from jwpce_convert.validate import (
+    OutputExistsError,
+    ValidateError,
+    generate_output_file,
+    validate,
+)
 
 class Form(QDialog):
 
@@ -48,32 +56,13 @@ class Form(QDialog):
     def convert(self):
         ''' Converts the input file and writes to the output file. '''
 
-        # TODO move the path validation to a separate class to share with the
-        # console program?
-
-        # Make sure that the input path exists.
         input_path = self.input_path.text()
-        if not (os.path.exists(input_path) or os.path.isfile(input_path)):
-            QMessageBox.warning(self,
-                self.tr('JWPCE conversion'),
-                self.tr('The input file does not exist or if not a file'),
-                QMessageBox.Ok)
-            return
-
+        # Should be set below when opening input the file.
         output_path = self.output_path.text()
 
-        # If not provided create the output file path.
-        if not output_path:
-            # Get name without extension
-            output_path = os.path.splitext(input_path)[0]
-
-        # Make sure it ends with csv.
-        if not output_path.endswith('.csv'):
-            output_path = output_path + '.csv'
-
-        # Check if the output file already exists.
-        # If so prompt to overwrite.
-        if os.path.exists(output_path):
+        try:
+            input_path, output_path = validate(input_path, output_path)
+        except OutputExistsError as e:
             overwrite = QMessageBox.warning(self,
                 self.tr('JWPCE conversion'),
                 self.tr('The output file already exits. Overwrite it?'),
@@ -82,11 +71,10 @@ class Form(QDialog):
             if overwrite == QMessageBox.No:
                 return
 
-        # Shouldn't happen, but hey.
-        if input_path == output_path:
+        except ValidateError as e:
             QMessageBox.warning(self,
                 self.tr('JWPCE conversion'),
-                self.tr('Input and output paths are the same.'),
+                self.tr(str(e)),
                 QMessageBox.Ok)
             return
 
@@ -107,7 +95,7 @@ class Form(QDialog):
         '''
 
         dialog = QFileDialog(self)
-        # While testing anyway
+        # TODO - While testing anyway
         dialog.setDirectory('.')
         dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setNameFilter('Text files (*.txt)')
@@ -117,11 +105,8 @@ class Form(QDialog):
             input_file = input_files[0]
             self.input_path.setText(input_file)
 
-            # automatically set the output based on the input.
-            # here as a helper so users won't have to type it in themselves.
-            path, in_file = os.path.split(input_file)
-            out_file = in_file.replace('txt', 'csv')
-            out_path = os.path.join(path, out_file)
+            out_path = generate_output_file(input_file)
+
             self.output_path.setText(out_path)
 
 def main():

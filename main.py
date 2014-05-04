@@ -2,15 +2,24 @@
 
 ''' Converts a file of JWPCE dictionary defenitions to an Anki CSV.
 
+    Console version.
+
     *Note* The file must start in utf-8 format, not the default JWPCE format.
     At some point this may change, but for the moment I don't want to deal
     with the various file encodings.
 '''
 
+# TODO - merge the console and gui version?
+
 import argparse
-import os
 
 from jwpce_convert import read_file, write_file
+from jwpce_convert.validate import (
+    OutputExistsError,
+    ValidateError,
+    generate_output_file,
+    validate,
+)
 
 def main():
     description = '''
@@ -31,32 +40,17 @@ def main():
     output_path = args.output
     force = args.force
 
-    # TODO - move path validation to a separate location to share with the
-    # gui program?
-
-    # Kick it out if the input doesn't exist
-    if not (os.path.exists(input_path) or os.path.isfile(input_path)):
-        print('Input file does not exist or is not a file.')
-        return 1
-
-    # If not provided create the output file path.
     if not output_path:
-        # Get name without extension
-        output_path = os.path.splitext(input_path)[0]
+        output_path = generate_output_file(input_path)
 
-    # Make sure it ends with csv.
-    if not output_path.endswith('.csv'):
-        output_path = output_path + '.csv'
-
-    # Check if output already exists.
-    # if force is specified allow it to overwrite.
-    if os.path.exists(output_path) and not force:
-        print('Output file already exists')
-        return 1
-
-    # Shouldn't happen, but hey.
-    if (input_path == output_path):
-        print('Failure: Input and output are the same.')
+    try:
+        input_path, output_path = validate(input_path, output_path)
+    except OutputExistsError as e:
+        if not force:
+            print('Error: ' + str(e))
+            return 1
+    except ValidateError as e:
+        print('Error: ' + str(e))
         return 1
 
     contents = read_file(input_path)
