@@ -10,6 +10,7 @@
 '''
 
 # TODO - merge the console and gui version?
+# If paramaters are used then run this, otherwise the gui?
 
 import argparse
 
