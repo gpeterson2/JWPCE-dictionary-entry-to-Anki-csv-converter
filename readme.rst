@@ -42,7 +42,6 @@ To use the GUI version you must have pyside installed.
 TODO
 ----
 
-* Update the main to use argparse.
 * Add some tests for the conversion as well as reading/writing.
 * Convert the input/output to use file like objects to make testing easier.
 * Review the current splitting logic, the kanji and kana versions could
