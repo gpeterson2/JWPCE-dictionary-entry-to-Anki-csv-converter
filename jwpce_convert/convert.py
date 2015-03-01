@@ -31,7 +31,7 @@ def read_file(inpath):
                 pass
 
             if converted:
-                contents.append(converted)
+                contents.extend(converted)
 
     return contents
 
@@ -78,25 +78,30 @@ def convert(line):
     kana_pattern = r'^(.*)\t+(.*)$'
     kana_regex = re.compile(kana_pattern, re.U)
 
-    match = kanji_regex.match(line)
-
     # TODO - the return from the kanji section smells bad. There should be a
     # way to determine which line matches perform the logic, and have only
     # a single return.
     # Ideally there could be one regex to match both.
 
     # Try to match kanji line
+    match = kanji_regex.match(line)
     if match:
         groups = match.groups()
 
         kanji = groups[0].strip()
         kana = groups[1].strip()
-        reading = groups[2].strip()
+        # Wasn't removing characters correctly.
+        # TODO - decode/encode when reading/writing.
+        reading = groups[2].decode('utf-8').strip()
 
-        front = kanji
-        back = '{0}<br>{1}'.format(kana, reading)
+        kanji_front = kanji
+        kanji_back = '{}<br>{}'.format(kana, reading)
 
-        return (front, back)
+        # TODO - might have issues with readings that are the same.
+        english_front = reading
+        english_back = '{}<br>{}'.format(kanji, kana)
+
+        return [(kanji_front, kanji_back), (english_front, english_back)]
 
     # Try to match kana only line
     match = kana_regex.match(line)
@@ -106,7 +111,7 @@ def convert(line):
         kana = groups[0].strip()
         reading = groups[1].strip()
 
-        return (kana, reading)
+        return [(kana, reading), (reading, kana)]
 
     raise ConvertError('Line not matched')
 
