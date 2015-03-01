@@ -20,6 +20,8 @@ This program will output:
 1. kanji, "kana (html) newline translations"
 2. kana, "translations"
 
+As well as a translation, kana/kanji version as well.
+
 At some point it would be nice to start with a list of pure Japanese words
 have the program search for definitions and then write that out to a csv,
 completely bypassing JWPCE. But that will be a job for the future.
