@@ -5,9 +5,11 @@ import re
 
 __all__ = ['convert', 'read_file', 'write_file']
 
+
 class ConvertError(Exception):
     ''' Error when line can't be converted '''
     pass
+
 
 def read_file(inpath):
     ''' Given a filepath converts the lines in the file.
@@ -35,6 +37,7 @@ def read_file(inpath):
 
     return contents
 
+
 def write_file(outpath, contents):
     ''' Writes converted lines to a csv. '''
 
@@ -45,6 +48,7 @@ def write_file(outpath, contents):
         writer.writerow([front, back])
 
     f.close()
+
 
 # TODO - this should probably work on a list rather than/including a line
 def convert(line):
@@ -66,9 +70,6 @@ def convert(line):
 
         :param line: A JWPCE dictionary line.
     '''
-
-    front = ''
-    back = ''
 
     # Line includes kanji, kana, and reading
     kanji_pattern = r'(.*)\s*\xe3\x80\x90(.*)\xe3\x80\x91\s*(.*)'
@@ -114,4 +115,3 @@ def convert(line):
         return [(kana, reading), (reading, kana)]
 
     raise ConvertError('Line not matched')
-

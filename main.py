@@ -22,6 +22,7 @@ from jwpce_convert.validate import (
     validate,
 )
 
+
 def main():
     description = '''
         Converts a file of JWPCE dictionary definitions to an Anki CSV.
@@ -33,7 +34,7 @@ def main():
     parser.add_argument('input', help='Text input')
     parser.add_argument('--output', '-o', help='CSV output')
     parser.add_argument('--force', '-f', action='store_true',
-        help='Overwrites output if it already exists')
+                        help='Overwrites output if it already exists')
 
     args = parser.parse_args()
 
@@ -57,6 +58,6 @@ def main():
     contents = read_file(input_path)
     write_file(output_path, contents)
 
+
 if __name__ == '__main__':
     main()
-

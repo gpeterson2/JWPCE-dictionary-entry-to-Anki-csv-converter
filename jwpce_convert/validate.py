@@ -9,13 +9,16 @@ __all__ = [
     'validate'
 ]
 
+
 class ValidateError(Exception):
     ''' General validation error. '''
     pass
 
+
 class OutputExistsError(Exception):
     ''' Error when output exists so you can prompt to overwrite it. '''
     pass
+
 
 def generate_output_file(input_path):
     ''' Generate an ouptut path based on the input path.
@@ -29,6 +32,7 @@ def generate_output_file(input_path):
         output_path = output_path + '.csv'
 
     return output_path
+
 
 def validate(input_path, output_path):
     ''' Validates user input.
@@ -59,4 +63,3 @@ def validate(input_path, output_path):
         raise OutputExistsError('Output file already exists')
 
     return (input_path, output_path)
-

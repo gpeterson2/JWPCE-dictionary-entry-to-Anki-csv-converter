@@ -1,10 +1,6 @@
 ''' Gui version of the program using PySide. '''
 
-import os
-
-from PySide.QtCore import Qt, SIGNAL
 from PySide.QtGui import (
-    QApplication,
     QDialog,
     QFileDialog,
     QGridLayout,
@@ -21,6 +17,7 @@ from jwpce_convert.validate import (
     generate_output_file,
     validate,
 )
+
 
 class MainForm(QDialog):
     ''' The main (and so far only) form. '''
@@ -74,9 +71,9 @@ class MainForm(QDialog):
 
         except ValidateError as e:
             QMessageBox.warning(self,
-                self.tr('JWPCE conversion'),
-                self.tr(str(e)),
-                QMessageBox.Ok)
+                                self.tr('JWPCE conversion'),
+                                self.tr(str(e)),
+                                QMessageBox.Ok)
             return
 
         # TODO - add in some kind of progress indicator?
@@ -84,9 +81,9 @@ class MainForm(QDialog):
         write_file(output_path, contents)
 
         QMessageBox.information(self,
-            self.tr('JWPCE conversion'),
-            self.tr('The conversion is complete.'),
-            QMessageBox.Ok)
+                                self.tr('JWPCE conversion'),
+                                self.tr('The conversion is complete.'),
+                                QMessageBox.Ok)
 
     def open_input_file_dialog(self):
         ''' Opens and input file dialog and sets the output based on that.
@@ -109,4 +106,3 @@ class MainForm(QDialog):
             out_path = generate_output_file(input_file)
 
             self.output_path.setText(out_path)
-
