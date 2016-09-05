@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+''' Path utils '''
+
 import os
 
 __all__ = [
@@ -21,7 +23,7 @@ class OutputExistsError(Exception):
 
 
 def generate_output_file(input_path):
-    ''' Generate an ouptut path based on the input path.
+    ''' Generate an output path based on the input path.
 
         :params input_path: Input file path.
     '''

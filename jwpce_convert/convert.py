@@ -20,34 +20,29 @@ def read_file(inpath):
         :returns: A list of converted lines.
     '''
 
-    contents = []
     with open(inpath, 'r') as infile:
         for line in infile.readlines():
+            # ignore empty lines
             if not line.strip():
                 continue
 
-            converted = None
             try:
                 converted = convert(line)
+                # Returns front/back and back/front
+                for item in converted:
+                    yield item
             except ConvertError:
                 pass
-
-            if converted:
-                contents.extend(converted)
-
-    return contents
 
 
 def write_file(outpath, contents):
     ''' Writes converted lines to a csv. '''
 
-    f = open(outpath, 'w')
-    writer = csv.writer(f)
+    with open(outpath, 'w') as f:
+        writer = csv.writer(f)
 
-    for front, back in contents:
-        writer.writerow([front, back])
-
-    f.close()
+        for front, back in contents:
+            writer.writerow([front, back])
 
 
 # TODO - this should probably work on a list rather than/including a line
