@@ -26,6 +26,8 @@ def read_file(inpath):
             if not line.strip():
                 continue
 
+            line = line.decode('utf-8')
+
             try:
                 converted = convert(line)
                 # Returns front/back and back/front
@@ -42,7 +44,7 @@ def write_file(outpath, contents):
         writer = csv.writer(f)
 
         for front, back in contents:
-            writer.writerow([front, back])
+            writer.writerow([front.encode('utf-8'), back.encode('utf-8')])
 
 
 # TODO - this should probably work on a list rather than/including a line
@@ -88,7 +90,7 @@ def convert(line):
         kana = groups[1].strip()
         # Wasn't removing characters correctly.
         # TODO - decode/encode when reading/writing.
-        reading = groups[2].decode('utf-8').strip()
+        reading = groups[2].strip()
 
         kanji_front = kanji
         kanji_back = '{}<br>{}'.format(kana, reading)
