@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import csv
 import re
@@ -8,16 +9,17 @@ __all__ = ['convert', 'read_file', 'write_file']
 
 class ConvertError(Exception):
     ''' Error when line can't be converted '''
+
     pass
 
 
 def read_file(inpath):
     ''' Given a filepath converts the lines in the file.
 
-        Will return a list of the conversions.
+        This will return a generator of converted values.
 
-        :param inpath: The path to a file to open.
-        :returns: A list of converted lines.
+        :param str inpath: The path to a file to open.
+        :returns: A generator of converted lines.
     '''
 
     with open(inpath, 'r') as infile:
@@ -38,7 +40,11 @@ def read_file(inpath):
 
 
 def write_file(outpath, contents):
-    ''' Writes converted lines to a csv. '''
+    ''' Writes converted lines to a csv.
+
+        :param str outpath: The filepath to write to.
+        :param contents: An iterable to write.
+    '''
 
     with open(outpath, 'w') as f:
         writer = csv.writer(f)
@@ -47,49 +53,79 @@ def write_file(outpath, contents):
             writer.writerow([front.encode('utf-8'), back.encode('utf-8')])
 
 
-# TODO - this should probably work on a list rather than/including a line
+# TODO - possibly just return tuples instead of the list. That might have
+# made more sense when it was building an overall list, but that is no
+# longer the case.
 def convert(line):
     ''' Parses a JWPCE line into a front, and back flashcard format.
 
         Capable of being imported into Anki.
 
         There are two types dictionary lines:
-        1. kanji [kana] defenition
-        2. kana defenition
+        1. kanji [kana] definition
+        2. kana definition
 
-        This will determine which is it is and in case one return:
-        front: kanji, back: kana newline defenitions
+        This will determine which is it is and return appropriate front and
+        back values as well as the invertend values to esure that both
+        Japanaese to English as well as English to Japanese knowledge is
+        tested.
 
-        in the case of a kana line it will return:
-        front: kana, back: defenitions
+        For example it will return a kana front and English back as well as an
+        English front and kana back.
 
-        Will throw a ConvertError if the line doesn't match.
+        In the case of a kanji line it will return return::
+
+            [
+                (kanji, kana newline definitions),
+                (definitions, kanji newline kana),
+            ]
+
+        in the case of a kana line it will return::
+
+            [
+                (kana, definitions),
+                (definition, kana),
+            ]
+
+        This sill throw a ConvertError if the line doesn't match.
 
         :param line: A JWPCE dictionary line.
+        :returns: List of matched tuples
+        :rtype: list
+        :raises: ConvertError
     '''
 
+    regular = None
+    inverted = None
+
+    # TODO - there's really no reason to do this in one line other than to
+    # show off...
+
     # Line includes kanji, kana, and reading
-    kanji_pattern = r'(.*)\s*\xe3\x80\x90(.*)\xe3\x80\x91\s*(.*)'
-    kanji_regex = re.compile(kanji_pattern, re.U)
-
     # line includes only kana and reading
-    kana_pattern = r'^(.*)\t+(.*)$'
-    kana_regex = re.compile(kana_pattern, re.U)
+    # (?: means ignore that as a match.
+    pattern = r'^(\w*)\s*(?:【(\w*)】)?\s*(.*)$'
 
-    # TODO - the return from the kanji section smells bad. There should be a
-    # way to determine which line matches perform the logic, and have only
-    # a single return.
-    # Ideally there could be one regex to match both.
+    # TODO - The re.U option may not be required in which case the pattern
+    # could be tested directly, otherwise the compile should happen outside
+    # this function so that is only done once.
+    kanji_regex = re.compile(pattern, re.U)
 
-    # Try to match kanji line
     match = kanji_regex.match(line)
-    if match:
-        groups = match.groups()
+    if not match:
+        raise ConvertError('Line not matched')
+
+    groups = match.groups()
+
+    # Either won't return groups or will match nothing as: '', None, ''
+    if len(groups) != 3 or groups[0] == '':
+        raise ConvertError('Line not matched')
+
+    # If this exists it means the part in 【】 matched
+    if groups[1] is not None:
 
         kanji = groups[0].strip()
         kana = groups[1].strip()
-        # Wasn't removing characters correctly.
-        # TODO - decode/encode when reading/writing.
         reading = groups[2].strip()
 
         kanji_front = kanji
@@ -99,16 +135,15 @@ def convert(line):
         english_front = reading
         english_back = '{}<br>{}'.format(kanji, kana)
 
-        return [(kanji_front, kanji_back), (english_front, english_back)]
+        regular = (kanji_front, kanji_back)
+        inverted = (english_front, english_back)
 
-    # Try to match kana only line
-    match = kana_regex.match(line)
-    if match:
-        groups = match.groups()
-
+    # Otherwise assume it was a kana match
+    else:
         kana = groups[0].strip()
-        reading = groups[1].strip()
+        reading = groups[2].strip()
 
-        return [(kana, reading), (reading, kana)]
+        regular = (kana, reading)
+        inverted = (reading, kana)
 
-    raise ConvertError('Line not matched')
+    return [regular, inverted]

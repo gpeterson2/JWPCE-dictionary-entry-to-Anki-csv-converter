@@ -14,6 +14,7 @@ from PySide.QtGui import QApplication
 
 from jwpce_convert.gui import MainForm
 
+
 def main():
     app = QApplication(sys.argv)
     form = MainForm()

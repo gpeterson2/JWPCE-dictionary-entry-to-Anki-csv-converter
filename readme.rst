@@ -4,6 +4,8 @@ Convert JWPCE to CSV
 
 Converts files of JWPCE dictionary entries to an Anki importable CSV.
 
+Note this has specifically been tested on python3.
+
 Where JWPCE_ is a Windows based Japanese text input and dictionary program
 and Anki_ is a flash card program.
 

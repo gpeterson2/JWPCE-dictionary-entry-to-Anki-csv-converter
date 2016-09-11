@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-''' Converts a file of JWPCE dictionary defenitions to an Anki CSV.
+''' Converts a file of JWPCE dictionary definitions to an Anki CSV.
 
     Console version.
 
@@ -27,7 +27,12 @@ def main():
     description = '''
         Converts a file of JWPCE dictionary definitions to an Anki CSV.
 
-        If output is not provided it will be genrated from the input file name.
+        If output is not provided it will be generated from the input file
+        name.
+
+        For example "test.txt" will become "test.csv". If the ouptut file
+        already exists then it will not be overwritten unless "--force" is
+        provided.
     '''
 
     parser = argparse.ArgumentParser(description=description)
