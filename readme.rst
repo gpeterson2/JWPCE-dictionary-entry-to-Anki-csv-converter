@@ -4,7 +4,8 @@ Convert JWPCE to CSV
 
 Converts files of JWPCE dictionary entries to an Anki importable CSV.
 
-Note this has specifically been tested on python3.
+**Note** this has most recently specifically been tested on python 3.4.3. Using
+python 2.7 may not be supported.
 
 Where JWPCE_ is a Windows based Japanese text input and dictionary program
 and Anki_ is a flash card program.
@@ -22,33 +23,50 @@ This program will output:
 1. kanji, "kana (html) newline translations"
 2. kana, "translations"
 
-As well as a translation, kana/kanji version as well.
+As well as a reversed version where the translation is the "front" and the
+japanese is the "back".
 
-At some point it would be nice to start with a list of pure Japanese words
-have the program search for definitions and then write that out to a csv,
-completely bypassing JWPCE. But that will be a job for the future.
-
-*Note* The JWPCE files must be in utf-8 format, not the default it uses.
+**Note** The JWPCE files must be in utf-8 format, not the default it uses.
 That's another job for the future.
+
+------------
+Installation
+------------
+
+**NOTE** This has most recently been tested using 3.4.3. Running this on 2.7
+or below may not be supported.
+
+Run::
+
+    pip install -r requirements.txt
 
 -----
 Usage
 -----
+
     Python main.py infile.txt outfile.csv
 
-------------
-Requirements
-------------
+-------
+Testing
+-------
 
-To use the GUI version you must have pyside installed.
+If the tests look strange it is because rather than using the conventional
+python unittest framework these were instead designed for use with py.test.
+
+**NOTE** This was done for faster feedback, but I intend to implement standard
+tests in the future.
+
+To install py.test run::
+
+    pip install -r requirements-dev.txt
+
+After running the following command in the main directory will run the test::
+
+    py.test
 
 ----
 TODO
 ----
 
-* Add some tests for the conversion as well as reading/writing.
-* Convert the input/output to use file like objects to make testing easier.
-* Review the current splitting logic, the kanji and kana versions could
-  possibly be combined in some way.
-* Check/Convert the file's encoding
-
+* Update to work with the default JWPCE encoding.
+* Update the tests to use the standard python unittest framwork.
