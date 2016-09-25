@@ -1,3 +1,5 @@
+import unittest
+
 from jwpce_convert.validate import (
     ValidateError,
     generate_output_file,
@@ -5,7 +7,7 @@ from jwpce_convert.validate import (
 )
 
 
-class TestValidate:
+class TestValidate(unittest.TestCase):
 
     def test_generate_output_file_non_csv(self):
 
@@ -36,34 +38,18 @@ class TestValidate:
 
     def test_validate_no_input(self):
 
-        passed = False
-        error_msg = ''
-
         input_path = ''
         output_path = 'test.csv'
 
-        try:
+        expected_msg = 'Input file not specified.'
+        with self.assertRaises(ValidateError, msg=expected_msg):
             validate(input_path, output_path)
-        except ValidateError as e:
-            passed = True
-            error_msg = str(e)
-
-        assert passed is True
-        assert error_msg == 'Input file not specified.'
 
     def test_validate_no_output(self):
-
-        passed = False
-        error_msg = ''
 
         input_path = 'test.txt'
         output_path = ''
 
-        try:
+        expected_msg = 'Output file not specified.'
+        with self.assertRaises(ValidateError, msg=expected_msg):
             validate(input_path, output_path)
-        except ValidateError as e:
-            passed = True
-            error_msg = str(e)
-
-        assert passed is True
-        assert error_msg == 'Output file not specified.'

@@ -61,10 +61,12 @@ class MainForm(QDialog):
         try:
             input_path, output_path = validate(input_path, output_path)
         except OutputExistsError as e:
+            # E128 Technically this should be indented more, but I feel that
+            # hurts readability in this case.
             overwrite = QMessageBox.warning(self,
                 self.tr('JWPCE conversion'),
                 self.tr('The output file already exits. Overwrite it?'),
-                QMessageBox.Yes | QMessageBox.No)
+                QMessageBox.Yes | QMessageBox.No)  # noqa: E128
 
             if overwrite == QMessageBox.No:
                 return

@@ -50,11 +50,12 @@ Usage
 Testing
 -------
 
-If the tests look strange it is because rather than using the conventional
-python unittest framework these were instead designed for use with py.test.
+While conventional python unit testing uses "self.assert" I find this to be
+verbose for simple cases, so instead use assert unless there is a reason not
+to like with "assertRaises".
 
-**NOTE** This was done for faster feedback, but I intend to implement standard
-tests in the future.
+This uses py.test as the test runner. Nose should still work, but will require
+extra effort to get things like coverage in place.
 
 To install py.test run::
 
@@ -64,9 +65,13 @@ After running the following command in the main directory will run the test::
 
     py.test
 
+This will run the tests, run coverage, and run flake8 as a linter. The
+settings for this can be found in the "setup.cfg" file.
+
 ----
 TODO
 ----
 
 * Update to work with the default JWPCE encoding.
 * Update the tests to use the standard python unittest framwork.
+* Update coverage, although the gui code might be problematic.

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import unittest
+
 from jwpce_convert.convert import convert, ConvertError
 
 
-class TestConvert:
+class TestConvert(unittest.TestCase):
 
     def test_convert_kanji(self):
         line = '種類	【しゅるい】	(n) variety, kind, type, category, counter for different sorts of things, (P)'
@@ -22,10 +24,12 @@ class TestConvert:
         assert result == expected
 
     def test_covert_kana(self):
-        line = 'ずっと	(adv) (1) direct, straight, (2) all along, the whole time, all the way, (3) for a long time, throughout, (4) by far, far and away, (P)'
+        # E501 These are long lines, but I don't want to alter the line becasue
+        # that is what would be found in the file itself.
+        line = 'ずっと	(adv) (1) direct, straight, (2) all along, the whole time, all the way, (3) for a long time, throughout, (4) by far, far and away, (P)'  # noqa: E501
 
         kana = 'ずっと'
-        reading = '(adv) (1) direct, straight, (2) all along, the whole time, all the way, (3) for a long time, throughout, (4) by far, far and away, (P)'
+        reading = '(adv) (1) direct, straight, (2) all along, the whole time, all the way, (3) for a long time, throughout, (4) by far, far and away, (P)'  # noqa: E501
 
         result = convert(line)
 
@@ -37,12 +41,5 @@ class TestConvert:
         assert result == expected
 
     def test_covert_failure(self):
-        passed = False
-        line = ''
-
-        try:
-            result = convert(line)
-        except ConvertError:
-            passed = True
-
-        assert passed is True
+        with self.assertRaises(ConvertError):
+            convert('')
