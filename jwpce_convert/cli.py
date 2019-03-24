@@ -9,18 +9,10 @@
     with the various file encodings.
 '''
 
-# TODO - merge the console and gui version?
-# If paramaters are used then run this, otherwise the gui?
-
 import argparse
 
-from jwpce_convert import read_file, write_file
-from jwpce_convert.validate import (
-    OutputExistsError,
-    ValidateError,
-    generate_output_file,
-    validate,
-)
+import jwpce_convert.jwpce_convert.convert as convert
+import jwpce_convert.jwpce_convert.validate as validate
 
 
 def main():
@@ -48,20 +40,20 @@ def main():
     force = args.force
 
     if not output_path:
-        output_path = generate_output_file(input_path)
+        output_path = validate.generate_output_file(input_path)
 
     try:
-        input_path, output_path = validate(input_path, output_path)
-    except OutputExistsError as e:
+        input_path, output_path = validate.validate(input_path, output_path)
+    except validate.OutputExistsError as e:
         if not force:
-            print('Error: ' + str(e))
+            print('Error: {0}'.format(e))
             return 1
-    except ValidateError as e:
-        print('Error: ' + str(e))
+    except validate.ValidateError as e:
+        print('Error: {0}'.format(e))
         return 1
 
-    contents = read_file(input_path)
-    write_file(output_path, contents)
+    contents = convert.read_file(input_path)
+    convert.write_file(output_path, contents)
 
 
 if __name__ == '__main__':

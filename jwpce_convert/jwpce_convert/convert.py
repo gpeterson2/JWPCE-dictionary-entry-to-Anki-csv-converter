@@ -8,7 +8,7 @@ __all__ = ['convert', 'read_file', 'write_file']
 
 
 class ConvertError(Exception):
-    ''' Error when line can't be converted '''
+    ''' Error when line can't be converted. '''
 
     pass
 
@@ -22,13 +22,11 @@ def read_file(inpath):
         :returns: A generator of converted lines.
     '''
 
-    with open(inpath, 'r') as infile:
+    with open(inpath, 'r', encoding='utf-8') as infile:
         for line in infile.readlines():
             # ignore empty lines
             if not line.strip():
                 continue
-
-            line = line.decode('utf-8')
 
             try:
                 converted = convert(line)
@@ -46,16 +44,13 @@ def write_file(outpath, contents):
         :param contents: An iterable to write.
     '''
 
-    with open(outpath, 'w') as f:
+    with open(outpath, 'w', encoding='utf-8') as f:
         writer = csv.writer(f)
 
         for front, back in contents:
-            writer.writerow([front.encode('utf-8'), back.encode('utf-8')])
+            writer.writerow([front, back])
 
 
-# TODO - possibly just return tuples instead of the list. That might have
-# made more sense when it was building an overall list, but that is no
-# longer the case.
 def convert(line):
     ''' Parses a JWPCE line into a front, and back flashcard format.
 
@@ -98,9 +93,6 @@ def convert(line):
     regular = None
     inverted = None
 
-    # TODO - there's really no reason to do this in one line other than to
-    # show off...
-
     # Line includes kanji, kana, and reading
     # line includes only kana and reading
     # (?: means ignore that as a match.
@@ -129,11 +121,11 @@ def convert(line):
         reading = groups[2].strip()
 
         kanji_front = kanji
-        kanji_back = '{}<br>{}'.format(kana, reading)
+        kanji_back = '{0}<br>{1}'.format(kana, reading)
 
         # TODO - might have issues with readings that are the same.
         english_front = reading
-        english_back = '{}<br>{}'.format(kanji, kana)
+        english_back = '{0}<br>{1}'.format(kanji, kana)
 
         regular = (kanji_front, kanji_back)
         inverted = (english_front, english_back)

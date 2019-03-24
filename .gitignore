@@ -1,5 +1,7 @@
 *csv
 *pyc
 *txt
+*.egg-info
 .cache
 .coverage
+venv
