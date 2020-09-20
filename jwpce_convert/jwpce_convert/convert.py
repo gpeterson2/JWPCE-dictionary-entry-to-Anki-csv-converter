@@ -7,6 +7,20 @@ import re
 __all__ = ['convert', 'read_file', 'write_file']
 
 
+# Line includes kanji, kana, and reading
+# line includes only kana and reading
+patterns = [
+    r'^(?P<kanji>\w*)\s+【(?P<kana>\w*)】\s+(?P<reading>.*)$',
+    r'^(?P<kanji>\w*)\s+\[(?P<kana>.*)\]+?\s+(?P<reading>.*)$',
+    r'^(?P<kana>\w*)\s+(?P<reading>.*)$',
+]
+
+# TODO - The re.U option may not be required in which case the pattern
+# could be tested directly, otherwise the compile should happen outside
+# this function so that is only done once.
+regexes = [re.compile(pattern, re.U) for pattern in patterns]
+
+
 class ConvertError(Exception):
     ''' Error when line can't be converted. '''
 
@@ -93,49 +107,49 @@ def convert(line):
     regular = None
     inverted = None
 
-    # Line includes kanji, kana, and reading
-    # line includes only kana and reading
-    # (?: means ignore that as a match.
-    pattern = r'^(\w*)\s*(?:【(\w*)】)?\s*(.*)$'
-
-    # TODO - The re.U option may not be required in which case the pattern
-    # could be tested directly, otherwise the compile should happen outside
-    # this function so that is only done once.
-    kanji_regex = re.compile(pattern, re.U)
-
-    match = kanji_regex.match(line)
-    if not match:
+    if not line:
         raise ConvertError('Line not matched')
 
-    groups = match.groups()
+    for regex in regexes:
+        match = regex.match(line)
 
-    # Either won't return groups or will match nothing as: '', None, ''
-    if len(groups) != 3 or groups[0] == '':
-        raise ConvertError('Line not matched')
+        if not match:
+            continue
 
-    # If this exists it means the part in 【】 matched
-    if groups[1] is not None:
+        groups = match.groups()
 
-        kanji = groups[0].strip()
-        kana = groups[1].strip()
-        reading = groups[2].strip()
+        if len(groups) == 0:
+            continue
 
-        kanji_front = kanji
-        kanji_back = '{0}<br>{1}'.format(kana, reading)
+        kanji = None
+        try:
+            kanji = match.group('kanji')
+        except IndexError:
+            pass
+        kana = match.group('kana')
+        reading = match.group('reading')
 
-        # TODO - might have issues with readings that are the same.
-        english_front = reading
-        english_back = '{0}<br>{1}'.format(kanji, kana)
+        if kana is None or reading is None:
+            continue
 
-        regular = (kanji_front, kanji_back)
-        inverted = (english_front, english_back)
+        # If this exists it means the part in 【】 matched
+        if kanji is not None:
+            kanji_front = kanji
+            kanji_back = f'{kana}<br>{reading}'
 
-    # Otherwise assume it was a kana match
-    else:
-        kana = groups[0].strip()
-        reading = groups[2].strip()
+            # TODO - might have issues with readings that are the same.
+            english_front = reading
+            english_back = f'{kanji}<br>{kana}'
 
-        regular = (kana, reading)
-        inverted = (reading, kana)
+            regular = (kanji_front, kanji_back)
+            inverted = (english_front, english_back)
 
-    return [regular, inverted]
+        # Otherwise assume it was a kana match
+        else:
+            regular = (kana, reading)
+            inverted = (reading, kana)
+
+        return [regular, inverted]
+
+    # Nothing matched, raise an error
+    raise ConvertError('Line not matched')

@@ -24,43 +24,50 @@ This program will output:
 2. kana, "translations"
 
 As well as a reversed version where the translation is the "front" and the
-japanese is the "back".
+Japanese is the "back".
 
 **Note** The JWPCE files must be in utf-8 format, not the default it uses.
 That's another job for the future.
 
-------------
-Installation
-------------
+-----------
+Development
+-----------
 
-Run::
+Install requirements::
 
     pip install -r requirements.txt
+    pip install -r requirements-dev.txt
 
------
-Usage
------
+Install the package locally::
 
-    Python cli.py infile.txt outfile.csv
+    pip install -e .
+
+This will allow using the entry points from the setup.py file.
+
+Running the command line version::
+
+    jwpce_convert
+
+Running the gui version::
+
+    jwpce_convert_gui
+
+------------------
+Command Line Usage
+------------------
+
+    jwpce_convert [-h] [--output OUTPUT] [--force] input
 
 -------
 Testing
 -------
 
-While conventional python unit testing uses "self.assert" I find this to be
-verbose for simple cases, so instead use assert unless there is a reason not
-to like with "assertRaises".
+This uses py.test as the test runner.  The requirements are included in
+requirements-dev.txt.
 
-This uses py.test as the test runner. Nose should still work, but will require
-extra effort to get things like coverage in place.
+After installing those in the main directory run::
 
-To install py.test run::
-
-    pip install -r requirements-dev.txt
-
-After running the following command in the main directory will run the test::
-
-    py.test
+    py.test tests
 
 This will run the tests, run coverage, and run flake8 as a linter. The
 settings for this can be found in the "setup.cfg" file.

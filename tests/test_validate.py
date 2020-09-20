@@ -1,13 +1,13 @@
-import unittest
+import pytest
 
-from jwpce_convert.validate import (
+from jwpce_convert.jwpce_convert.validate import (
     ValidateError,
     generate_output_file,
     validate,
 )
 
 
-class TestValidate(unittest.TestCase):
+class TestValidate:
 
     def test_generate_output_file_non_csv(self):
 
@@ -42,7 +42,7 @@ class TestValidate(unittest.TestCase):
         output_path = 'test.csv'
 
         expected_msg = 'Input file not specified.'
-        with self.assertRaises(ValidateError, msg=expected_msg):
+        with pytest.raises(ValidateError, msg=expected_msg):
             validate(input_path, output_path)
 
     def test_validate_no_output(self):
@@ -51,5 +51,5 @@ class TestValidate(unittest.TestCase):
         output_path = ''
 
         expected_msg = 'Output file not specified.'
-        with self.assertRaises(ValidateError, msg=expected_msg):
+        with pytest.raises(ValidateError, msg=expected_msg):
             validate(input_path, output_path)

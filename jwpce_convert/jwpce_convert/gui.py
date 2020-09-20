@@ -23,6 +23,8 @@ class MainForm(QtWidgets.QDialog):
 
         layout = QtWidgets.QGridLayout()
         layout.addWidget(QtWidgets.QLabel('Input Path:'), 0, 0)
+        layout.addWidget(self.input_path, 0, 1)
+        layout.addWidget(input_dialog_button, 0, 2)
         layout.addWidget(QtWidgets.QLabel('Output Path:'), 1, 0)
         layout.addWidget(self.output_path, 1, 1)
         layout.addWidget(convert_button, 2, 0)
